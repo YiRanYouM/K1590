@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".PowerActivity">
+    tools:context=".LightActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
         android:text="设置参数"/>
 
     <cn.mtjsoft.www.gridpager.GridPager
-        android:id="@+id/grid_power"
+        android:id="@+id/grid_light"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -34,7 +34,7 @@
         app:column_count="3"/>
 
     <Button
-        android:id="@+id/bt_power_back"
+        android:id="@+id/bt_light_back"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"

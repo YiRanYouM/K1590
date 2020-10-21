@@ -18,7 +18,9 @@ import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private Button bt_light, bt_temp, bt_setting;
+    private TextView tv_ji, tv_deng;
     private SharedPreferences sp;
+    private PopupWindow pw;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,29 +32,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bt_light = findViewById(R.id.bt_light);
         bt_temp = findViewById(R.id.bt_temp);
         bt_setting = findViewById(R.id.bt_setting);
+        tv_deng = findViewById(R.id.tv_deng);
+        tv_ji = findViewById(R.id.tv_ji);
 
+        bt_light.setOnClickListener(this);
+        bt_temp.setOnClickListener(this);
+        tv_ji.setOnClickListener(this);
+        tv_deng.setOnClickListener(this);
+        bt_setting.setOnClickListener(this);
 
-        bt_temp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
-
-        bt_light.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
-
-        bt_setting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                menuPop();
-            }
-        });
     }
 
 
@@ -62,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TextView dian = view.findViewById(R.id.dian);
         TextView light = view.findViewById(R.id.light);
         TextView logout = view.findViewById(R.id.logout);
-        PopupWindow pw = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+        pw = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
         pw.setContentView(view);
         add.setOnClickListener(this);
         dian.setOnClickListener(this);
@@ -84,8 +72,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.add:
                 break;
             case R.id.dian:
+                startActivity(new Intent(this, PowerActivity.class));
+                pw.dismiss();
                 break;
             case R.id.light:
+                startActivity(new Intent(this, LightActivity.class));
+                pw.dismiss();
+                break;
+            case R.id.tv_deng:
+                startActivity(new Intent(this, LightActivity.class));
+                break;
+            case R.id.tv_ji:
+                startActivity(new Intent(this, PowerActivity.class));
+                break;
+            case R.id.bt_light:
+
+                break;
+            case R.id.bt_temp:
+
+                break;
+            case R.id.bt_setting:
+                menuPop();
                 break;
             default:
                 break;

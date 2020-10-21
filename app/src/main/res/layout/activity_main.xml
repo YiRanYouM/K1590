@@ -32,11 +32,12 @@
         android:layout_marginTop="5dp"
         android:layout_gravity="right"/>
 
-    <GridView
+    <cn.mtjsoft.www.gridpager.GridPager
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:numColumns="3"
+        app:row_count="3"
+        app:column_count="3"
         android:layout_margin="10dp"/>
 
     <RelativeLayout
