@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">小鹏之家</string>
+    <string-array name="thing_type">
+        <item>电灯</item>
+        <item>电机</item>
+    </string-array>
 </resources>

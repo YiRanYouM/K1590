@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
-    android:background="@color/colorWhite">
+    android:background="@drawable/edit_bg">
 
     <TextView
         android:id="@+id/add"

@@ -10,14 +10,6 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="26sp"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/app_name"/>
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:textSize="16sp"
         android:text="设置参数"/>
@@ -26,19 +18,10 @@
         android:id="@+id/grid_power"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
         app:row_count="2"
         app:column_count="3"/>
 
-    <Button
-        android:id="@+id/bt_power_back"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_gravity="right"
-        android:text="返回" />
 </LinearLayout>

@@ -21,6 +21,7 @@
         android:layout_height="wrap_content"
         android:text="光照强度"
         android:layout_marginRight="10dp"
+        android:background="@drawable/bt_bg"
         android:layout_gravity="right"/>
 
     <Button
@@ -29,10 +30,12 @@
         android:layout_height="wrap_content"
         android:text="当前温度"
         android:layout_marginRight="10dp"
+        android:background="@drawable/bt_bg"
         android:layout_marginTop="5dp"
         android:layout_gravity="right"/>
 
     <cn.mtjsoft.www.gridpager.GridPager
+        android:id="@+id/grid_total"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
@@ -45,13 +48,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_margin="10dp">
-        <Button
-            android:id="@+id/bt_setting"
+
+        <ImageView
+            android:id="@+id/iv_setting"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:src="@drawable/ic_settings_blue"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
-            android:text="设置" />
+            android:layout_centerVertical="true"/>
 
         <TextView
             android:id="@+id/tv_deng"
@@ -60,7 +64,7 @@
             android:layout_toLeftOf="@+id/tv_ji"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:text="电灯"/>
 
         <View
@@ -76,7 +80,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:textSize="16sp"
+            android:textSize="18sp"
             android:layout_marginLeft="10dp"
             android:text="电机"/>
     </RelativeLayout>
