@@ -5,17 +5,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".PowerActivity">
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:textSize="16sp"
-        android:text="设置参数"/>
+    tools:context=".DeleteActivity">
 
     <cn.mtjsoft.www.gridpager.GridPager
-        android:id="@+id/grid_power"
+        android:id="@+id/grid_delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"

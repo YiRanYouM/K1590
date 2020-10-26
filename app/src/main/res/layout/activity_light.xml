@@ -21,7 +21,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
-        app:row_count="2"
+        app:row_count="3"
         app:column_count="3"/>
 
 </LinearLayout>

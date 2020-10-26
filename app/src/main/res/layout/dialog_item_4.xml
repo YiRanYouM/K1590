@@ -33,11 +33,13 @@
             android:text="亮度"/>
 
         <ImageView
+            android:id="@+id/iv_light_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_add_circle_blue"/>
 
         <ImageView
+            android:id="@+id/iv_light_reduce"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
@@ -52,6 +54,7 @@
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp">
         <Button
+            android:id="@+id/bt_light_ok"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="确定"
@@ -61,6 +64,7 @@
             android:layout_marginRight="10dp"/>
 
         <Button
+            android:id="@+id/bt_light_cancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"

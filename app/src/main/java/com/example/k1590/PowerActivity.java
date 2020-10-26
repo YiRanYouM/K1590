@@ -45,36 +45,69 @@ public class PowerActivity extends AppCompatActivity {
                 .setGridItemClickListener(new GridPager.GridItemClickListener() {
                     @Override
                     public void click(int position) {
-                        showDelete(PowerActivity.this, position);
+                        showPowerDialog(PowerActivity.this, powerList.get(position).getName());
                     }
                 })
                 .show();
     }
 
 
-    private void showDelete(Context context, final int position){
-        View view = LayoutInflater.from(context).inflate(R.layout.dialog_item_2, null);
-        Button bt_ok = view.findViewById(R.id.bt_delete_ok);
-        Button bt_cancel = view.findViewById(R.id.bt_delete_cancel);
+    public static void showPowerDialog(Context context, String pram1){
+        View view = LayoutInflater.from(context).inflate(R.layout.dialog_item_3, null);
+        TextView title = view.findViewById(R.id.tv_power_title);
+        Button bt_ok = view.findViewById(R.id.bt_power_ok);
+        Button bt_cancel = view.findViewById(R.id.bt_power_cancel);
+        ImageView iv_speed_add = view.findViewById(R.id.iv_speed_add);
+        ImageView iv_speed_reduce = view.findViewById(R.id.iv_speed_reduce);
+        ImageView iv_ration_add = view.findViewById(R.id.iv_ration_add);
+        ImageView iv_ration_reduce = view.findViewById(R.id.iv_ration_reduce);
+        title.setText(pram1);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setView(view);
 
         final AlertDialog dialog = builder.create();
         dialog.show();
 
-        bt_cancel.setOnClickListener(new View.OnClickListener() {
+        iv_speed_add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dialog.dismiss();
+
+            }
+        });
+
+        iv_speed_reduce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        iv_ration_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        iv_ration_reduce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
             }
         });
 
         bt_ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                helper.deleteThingById(powerList.get(position).getThing_id());
                 dialog.dismiss();
-                finish();
+            }
+        });
+
+        bt_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
             }
         });
     }
