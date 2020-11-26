@@ -2,6 +2,7 @@ package com.example.k1590;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -19,7 +20,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private TextView tv_register;
     private DBHelper helper = null;
     private EditText edit_name, edit_pw;
-
+    private final String AccessKeyID = "LTAI4G6wThjjzvRFRQ76NmNY";
+    private final String AccessKeySecret = "7O4nsPVgdoXM56GJxUDJubmUNxU3re";
+    private final String Region = "cn-shanghai";
+    private final String ProductKey = "a11PkRH5FFV";
+    private final String ProductSecret = "I1m2H8wvIdFOC1uL";
+    private final String Domain = "iot.cn-shanghai.aliyuncs.com";
+    //LTAI4G6wThjjzvRFRQ76NmNY
+    //7O4nsPVgdoXM56GJxUDJubmUNxU3re
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,11 +83,27 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                sp.edit().putBoolean("isLogin",true).commit();
                sp.edit().putString("name",name).commit();
                Toast.makeText(LoginActivity.this,"登录成功",Toast.LENGTH_SHORT).show();
-               startActivity(new Intent(LoginActivity.this, MainActivity.class));
-               finish();
+               //startActivity(new Intent(LoginActivity.this, MainActivity.class));
+               RegisterDevice();
+               //finish();
            }else {
                Toast.makeText(LoginActivity.this,"登录失败",Toast.LENGTH_SHORT).show();
            }
         }
+    }
+
+    public void RegisterDevice () {
+        final DynamicRegisterByMqtt client = new DynamicRegisterByMqtt();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    client.register(ProductKey, ProductSecret, "test4");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }
