@@ -10,7 +10,7 @@ android {
         targetSdkVersion 22
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -20,12 +20,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-//    sourceSets {
-//        main {
-//            jniLibs.srcDirs = ['libs']
-//        }
-//    }
 }
 
 dependencies {
@@ -36,7 +30,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     implementation 'com.github.mtjsoft:GridPager:v1.3.2'
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
+    implementation('com.aliyun.alink.linksdk:iot-linkkit:1.7.2')
+    implementation('com.aliyun.alink.linksdk:public-channel-core:0.7.7.1')
+    implementation('com.aliyun.alink.linksdk:iot-device-manager:1.7.2.2')
     implementation 'com.alibaba:fastjson:1.2.73'
+    implementation 'com.android.support:multidex:1.0.3'
 }

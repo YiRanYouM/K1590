@@ -21,20 +21,27 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import org.eclipse.paho.android.service.MqttAndroidClient;
-import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import java.math.BigInteger;
+import com.aliyun.alink.dm.api.DeviceInfo;
+import com.aliyun.alink.linkkit.api.ILinkKitConnectListener;
+import com.aliyun.alink.linkkit.api.IoTMqttClientConfig;
+import com.aliyun.alink.linkkit.api.LinkKit;
+import com.aliyun.alink.linkkit.api.LinkKitInitParams;
+import com.aliyun.alink.linksdk.channel.core.persistent.mqtt.MqttConfigure;
+import com.aliyun.alink.linksdk.cmp.connect.channel.MqttPublishRequest;
+import com.aliyun.alink.linksdk.cmp.connect.channel.MqttSubscribeRequest;
+import com.aliyun.alink.linksdk.cmp.core.base.AMessage;
+import com.aliyun.alink.linksdk.cmp.core.base.ARequest;
+import com.aliyun.alink.linksdk.cmp.core.base.AResponse;
+import com.aliyun.alink.linksdk.cmp.core.base.ConnectState;
+import com.aliyun.alink.linksdk.cmp.core.listener.IConnectNotifyListener;
+import com.aliyun.alink.linksdk.cmp.core.listener.IConnectSendListener;
+import com.aliyun.alink.linksdk.cmp.core.listener.IConnectSubscribeListener;
+import com.aliyun.alink.linksdk.tools.AError;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
+import static com.example.k1590.LoginActivity.ProductKey;
+import static com.example.k1590.LoginActivity.deviceName;
+import static com.example.k1590.LoginActivity.deviceSecret;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     private Button bt_light, bt_temp;
@@ -46,26 +53,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private String user_name;
     private ImageView iv_setting;
     private List<ThingBean> thingList = new ArrayList<>();
-
-    //mqtt
-    private final String TAG = "AiotMqtt";
-    /* 设备三元组信息 */
-    final private String PRODUCTKEY = "a11PkRH5FFV";
-    final private String DEVICENAME = "Android";
-    final private String DEVICESECRET = "c7fe2d3a05bc21a7ec661705f9b627eb";
-
     /* 自动Topic, 用于上报消息 */
-    final private String PUB_TOPIC = "/" + PRODUCTKEY + "/" + DEVICENAME + "/user/update";
+    final private String PUB_TOPIC = "/" + ProductKey + "/" + deviceName + "/user/update";
     /* 自动Topic, 用于接受消息 */
-    final private String SUB_TOPIC = "/" + PRODUCTKEY + "/" + DEVICENAME + "/user/get";
-
-    /* 阿里云Mqtt服务器域名 */
-    final String host = "tcp://" + PRODUCTKEY + ".iot-as-mqtt.cn-shanghai.aliyuncs.com:443";
-    private String clientId;
-    private String userName;
-    private String passWord;
-
-    MqttAndroidClient mqttAndroidClient;
+    final private String SUB_TOPIC = "/" + ProductKey + "/" + deviceName + "/user/get";
+    private String deviceToken = null;
+    private String clientId = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -90,62 +83,44 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         iv_setting.setOnClickListener(this);
 
         user_name = sp.getString("name", null);
+        deviceToken = sp.getString("deviceToken", null);
+        clientId = sp.getString("clientId", null);
 
-        //mqtt
-        /* 获取Mqtt建连信息clientId, username, password */
-        AiotMqttOption aiotMqttOption = new AiotMqttOption().getMqttOption(PRODUCTKEY, DEVICENAME, DEVICESECRET);
-        if (aiotMqttOption == null) {
-            Log.e(TAG, "device info error");
-        } else {
-            clientId = aiotMqttOption.getClientId();
-            userName = aiotMqttOption.getUsername();
-            passWord = aiotMqttOption.getPassword();
-        }
+        LinkKit.getInstance().registerOnPushListener(notifyListener);
 
-        /* 创建MqttConnectOptions对象并配置username和password */
-        MqttConnectOptions mqttConnectOptions = new MqttConnectOptions();
-        mqttConnectOptions.setUserName(userName);
-        mqttConnectOptions.setPassword(passWord.toCharArray());
+        DeviceInfo deviceInfo = new DeviceInfo();
+        deviceInfo.productKey = ProductKey;// 产品类型
+        deviceInfo.deviceName = deviceName;// 设备名称
+        deviceInfo.deviceSecret = deviceSecret;// 设备密钥
 
+        MqttConfigure.deviceToken = deviceToken;
+        MqttConfigure.clientId = clientId;
 
-        /* 创建MqttAndroidClient对象, 并设置回调接口 */
-        mqttAndroidClient = new MqttAndroidClient(getApplicationContext(), host, clientId);
-        mqttAndroidClient.setCallback(new MqttCallback() {
+        IoTMqttClientConfig clientConfig = new IoTMqttClientConfig(ProductKey, deviceName, deviceSecret);
+
+        LinkKitInitParams params = new LinkKitInitParams();
+        params.deviceInfo = deviceInfo;
+        params.mqttClientConfig = clientConfig;
+
+        /**
+         * 设备初始化建联
+         * onError 初始化建联失败，需要用户重试初始化。如因网络问题导致初始化失败。
+         * onInitDone 初始化成功
+         */
+        LinkKit.getInstance().init(this, params, new ILinkKitConnectListener() {
             @Override
-            public void connectionLost(Throwable cause) {
-                Log.i(TAG, "connection lost");
+            public void onError(AError error) {
+                // 初始化失败 error包含初始化错误信息
+                System.out.println("00000000000000000000");
             }
 
             @Override
-            public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.i(TAG, "topic: " + topic + ", msg: " + new String(message.getPayload()));
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken token) {
-                Log.i(TAG, "msg delivered");
+            public void onInitDone(Object data) {
+                // 初始化成功 data 作为预留参数
+                System.out.println("1111111111111222222222222222");
+                subscribeTopic(SUB_TOPIC);
             }
         });
-
-        /* Mqtt建连 */
-        try {
-            mqttAndroidClient.connect(mqttConnectOptions,null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.i(TAG, "connect succeed");
-
-                    subscribeTopic(SUB_TOPIC);
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.i(TAG, "connect failed");
-                }
-            });
-
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -170,7 +145,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     @Override
                     public void click(int position) {
                         if (thingList.get(position).getType().equals("0")) {
-                            publishMessage("{'temperature':'/i/'}");
+                            String order = thingList.get(position).getOrder();
+                            String data = String.format("{'led':'%s'}", order);
+                            publishMessage(data);
                         }else if (thingList.get(position).getType().equals("1")){
 
                         }
@@ -298,109 +275,82 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    IConnectNotifyListener notifyListener = new IConnectNotifyListener() {
+        @Override
+        public void onNotify(String connectId, String topic, AMessage aMessage) {
+            // 云端下行数据回调
+            // connectId 连接类型 topic 下行 topic; aMessage 下行数据
+            // 数据解析如下：
+            String pushData = new String((byte[]) aMessage.data);
+            System.out.println("pushData---->"+pushData);
+            // pushData 示例  {"method":"thing.service.test_service","id":"123374967","params":{"vv":60},"version":"1.0.0"}
+            // method 服务类型； params 下推数据内容
+        }
+
+        @Override
+        public boolean shouldHandle(String connectId, String topic) {
+            // 选择是否不处理某个 topic 的下行数据
+            // 如果不处理某个topic，则onNotify不会收到对应topic的下行数据
+            return true; //TODO 根基实际情况设置
+        }
+
+        @Override
+        public void onConnectStateChange(String connectId, ConnectState connectState) {
+            // 对应连接类型的连接状态变化回调，具体连接状态参考 SDK ConnectState
+        }
+    };
+
     /**
-     * 订阅特定的主题
-     * @param topic mqtt主题
+     * 订阅主题
+     * @param topic
      */
     public void subscribeTopic(String topic) {
-        try {
-            mqttAndroidClient.subscribe(topic, 0, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.i(TAG, "subscribed succeed");
-                }
+        MqttSubscribeRequest subscribeRequest = new MqttSubscribeRequest();
+        // subTopic 替换成用户自己需要订阅的 topic
+        subscribeRequest.topic = topic;
+        subscribeRequest.isSubscribe = true;
+        subscribeRequest.qos = 0; // 支持0或者1
+        LinkKit.getInstance().subscribe(subscribeRequest, new IConnectSubscribeListener() {
+            @Override
+            public void onSuccess() {
+                // 订阅成功
+                System.out.println("订阅成功");
+            }
 
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.i(TAG, "subscribed failed");
-                }
-            });
-
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+            @Override
+            public void onFailure(AError aError) {
+                // 订阅失败
+            }
+        });
     }
 
     /**
      * 向默认的主题/user/update发布消息
-     * @param payload 消息载荷
+     * @param data 消息载荷
      */
-    public void publishMessage(String payload) {
-        try {
-            if (mqttAndroidClient.isConnected() == false) {
-                mqttAndroidClient.connect();
+    public void publishMessage(String data) {
+        // 发布
+        MqttPublishRequest request = new MqttPublishRequest();
+        request.isRPC = false;
+        // topic 替换成用户自己需要发布的 topic
+        request.topic = PUB_TOPIC;
+        // 设置 qos
+        request.qos = 0;
+        // data 替换成用户需要发布的数据 json String
+        //示例 属性上报 {"id":"160865432","method":"thing.event.property.post","params":{"LightSwitch":1},"version":"1.0"}
+        request.payloadObj = data;
+        LinkKit.getInstance().publish(request, new IConnectSendListener() {
+            @Override
+            public void onResponse(ARequest aRequest, AResponse aResponse) {
+                // 发布成功
+                Log.i("MainActivity", "publish succeed!");
             }
 
-            MqttMessage message = new MqttMessage();
-            message.setPayload(payload.getBytes());
-            message.setQos(0);
-            mqttAndroidClient.publish(PUB_TOPIC, message,null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.i(TAG, "publish succeed!");
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.i(TAG, "publish failed!");
-                }
-            });
-        } catch (MqttException e) {
-            Log.e(TAG, e.toString());
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * MQTT建连选项类，输入设备三元组productKey, deviceName和deviceSecret, 生成Mqtt建连参数clientId，username和password.
-     */
-    class AiotMqttOption {
-        private String username = "";
-        private String password = "";
-        private String clientId = "";
-
-        public String getUsername() { return this.username;}
-        public String getPassword() { return this.password;}
-        public String getClientId() { return this.clientId;}
-
-        /**
-         * 获取Mqtt建连选项对象
-         * @param productKey 产品秘钥
-         * @param deviceName 设备名称
-         * @param deviceSecret 设备机密
-         * @return AiotMqttOption对象或者NULL
-         */
-        public AiotMqttOption getMqttOption(String productKey, String deviceName, String deviceSecret) {
-            if (productKey == null || deviceName == null || deviceSecret == null) {
-                return null;
+            @Override
+            public void onFailure(ARequest aRequest, AError aError) {
+                // 发布失败
             }
-
-            try {
-                String timestamp = Long.toString(System.currentTimeMillis());
-
-                // clientId
-                this.clientId = productKey + "." + deviceName + "|timestamp=" + timestamp +
-                        ",_v=paho-android-1.0.0,securemode=2,signmethod=hmacsha256|";
-
-                // userName
-                this.username = deviceName + "&" + productKey;
-
-                // password
-                String macSrc = "clientId" + productKey + "." + deviceName + "deviceName" +
-                        deviceName + "productKey" + productKey + "timestamp" + timestamp;
-                String algorithm = "HmacSHA256";
-                Mac mac = Mac.getInstance(algorithm);
-                SecretKeySpec secretKeySpec = new SecretKeySpec(deviceSecret.getBytes(), algorithm);
-                mac.init(secretKeySpec);
-                byte[] macRes = mac.doFinal(macSrc.getBytes());
-                password = String.format("%064x", new BigInteger(1, macRes));
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-
-            return this;
-        }
+        });
     }
 
     @Override
@@ -409,5 +359,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (pw != null && pw.isShowing()){
             pw.dismiss();
         }
+
+        LinkKit.getInstance().unRegisterOnPushListener(notifyListener);
     }
 }

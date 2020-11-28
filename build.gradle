@@ -21,7 +21,9 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://jitpack.io' }
-        maven { url "https://repo.eclipse.org/content/repositories/paho-releases/" }
+        maven {
+            url "http://maven.aliyun.com/nexus/content/repositories/releases/"
+        }
     }
 }
 
