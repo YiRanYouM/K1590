@@ -59,8 +59,6 @@ public class LightActivity extends AppCompatActivity {
         ImageView add = view.findViewById(R.id.iv_light_add);
         ImageView reduce = view.findViewById(R.id.iv_light_reduce);
         Button bt_ok = view.findViewById(R.id.bt_light_ok);
-        Button bt_cancel = view.findViewById(R.id.bt_light_cancel);
-
         title.setText(pram1);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -87,13 +85,6 @@ public class LightActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                dialog.dismiss();
-            }
-        });
-
-        bt_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
                 dialog.dismiss();
             }
         });

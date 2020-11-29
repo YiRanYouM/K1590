@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView iv_setting;
     private List<ThingBean> thingList = new ArrayList<>();
     /* 自动Topic, 用于上报消息 */
-    final private String PUB_TOPIC = "/" + ProductKey + "/" + deviceName + "/user/update";
+    static final private String PUB_TOPIC = "/" + ProductKey + "/" + deviceName + "/user/update";
     /* 自动Topic, 用于接受消息 */
     final private String SUB_TOPIC = "/" + ProductKey + "/" + deviceName + "/user/get";
     private String deviceToken = null;
@@ -87,6 +87,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         clientId = sp.getString("clientId", null);
 
         LinkKit.getInstance().registerOnPushListener(notifyListener);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.productKey = ProductKey;// 产品类型
@@ -121,11 +126,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 subscribeTopic(SUB_TOPIC);
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
 
         thingList = helper.QueryAllThing(user_name);
         pager.setDataAllCount(thingList.size())
@@ -144,13 +144,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setGridItemClickListener(new GridPager.GridItemClickListener() {
                     @Override
                     public void click(int position) {
+                        String data = null;
+                        String order = thingList.get(position).getOrder();
                         if (thingList.get(position).getType().equals("0")) {
-                            String order = thingList.get(position).getOrder();
-                            String data = String.format("{'led':'%s'}", order);
-                            publishMessage(data);
+                            data = String.format("{'led':'%s'}", order);
                         }else if (thingList.get(position).getType().equals("1")){
-
+                            data = String.format("{'power':'%s'}", order);
                         }
+                        publishMessage(data);
                     }
                 })
                 .show();
@@ -225,7 +226,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showDialog(this, "当前光照","");
                 break;
             case R.id.bt_temp:
-                String temp_order = sp.getString("temp_order", null);
+                String temp_order = sp.getString("temp_order", "/i/");
+                String data = String.format("{'temp':'%s'}",temp_order);
+                publishMessage(data);
                 showDialog(this, "当前温度","/i/");
                 break;
             case R.id.iv_setting:
@@ -281,16 +284,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // 云端下行数据回调
             // connectId 连接类型 topic 下行 topic; aMessage 下行数据
             // 数据解析如下：
-            String pushData = new String((byte[]) aMessage.data);
-            System.out.println("pushData---->"+pushData);
+            //String pushData = new String((byte[]) aMessage.data);
+            //System.out.println("pushData---->"+pushData);
             // pushData 示例  {"method":"thing.service.test_service","id":"123374967","params":{"vv":60},"version":"1.0.0"}
             // method 服务类型； params 下推数据内容
+            System.out.println("444444444444444444444");
+            if (topic.equals(SUB_TOPIC)){
+                System.out.println("33333333333333333");
+                String pushData = new String((byte[]) aMessage.data);
+                System.out.println("pushData---->"+pushData);
+            }
         }
 
         @Override
         public boolean shouldHandle(String connectId, String topic) {
             // 选择是否不处理某个 topic 的下行数据
             // 如果不处理某个topic，则onNotify不会收到对应topic的下行数据
+            System.out.println("handel---->"+topic);
             return true; //TODO 根基实际情况设置
         }
 
@@ -328,7 +338,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 向默认的主题/user/update发布消息
      * @param data 消息载荷
      */
-    public void publishMessage(String data) {
+    public static void publishMessage(String data) {
         // 发布
         MqttPublishRequest request = new MqttPublishRequest();
         request.isRPC = false;
