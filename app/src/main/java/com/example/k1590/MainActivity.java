@@ -21,6 +21,8 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+
+import com.alibaba.fastjson.JSONObject;
 import com.aliyun.alink.dm.api.DeviceInfo;
 import com.aliyun.alink.linkkit.api.ILinkKitConnectListener;
 import com.aliyun.alink.linkkit.api.IoTMqttClientConfig;
@@ -222,14 +224,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent2);
                 break;
             case R.id.bt_light:
-                String light_order = sp.getString("light_order", null);
-                showDialog(this, "当前光照","");
+                String light_order = sp.getString("light_order", "/j/");
+                String data_light = String.format("{'light_key':'%s'}",light_order);
+                publishMessage(data_light);
                 break;
             case R.id.bt_temp:
                 String temp_order = sp.getString("temp_order", "/i/");
                 String data = String.format("{'temp':'%s'}",temp_order);
                 publishMessage(data);
-                showDialog(this, "当前温度","/i/");
                 break;
             case R.id.iv_setting:
                 menuPop();
@@ -288,11 +290,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //System.out.println("pushData---->"+pushData);
             // pushData 示例  {"method":"thing.service.test_service","id":"123374967","params":{"vv":60},"version":"1.0.0"}
             // method 服务类型； params 下推数据内容
-            System.out.println("444444444444444444444");
-            if (topic.equals(SUB_TOPIC)){
-                System.out.println("33333333333333333");
+            if (topic.equals(SUB_TOPIC)) {
                 String pushData = new String((byte[]) aMessage.data);
-                System.out.println("pushData---->"+pushData);
+                System.out.println("pushData---->" + pushData);
+                JSONObject object = JSONObject.parseObject(pushData);
+                String temp_value = object.getString("tem");
+                if (temp_value != null) {
+                    showDialog(MainActivity.this, "当前温度", temp_value);
+                }
+
+                String light_value = object.getString("light");
+                if (light_value != null){
+                    showDialog(MainActivity.this, "当前光照",light_value);
+                }
             }
         }
 
