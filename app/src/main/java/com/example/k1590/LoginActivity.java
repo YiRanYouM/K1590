@@ -34,7 +34,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public static final String ProductSecret = "I1m2H8wvIdFOC1uL";
     private String deviceToken = null;
     public static String deviceSecret = null;
-    public static String deviceName = "Test5";
+    public static String deviceName = null;
     private String clientId = null;
 
     @Override
@@ -51,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private void autoLogin() {
         boolean status = sp.getBoolean("isLogin", false);
         if (status) {
+            deviceName = sp.getString("name", null);
             startActivity(new Intent(this, MainActivity.class));
             finish();
         }
@@ -93,7 +94,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if (helper.is_login(name, pw)) {
                 sp.edit().putBoolean("isLogin", true).commit();
                 sp.edit().putString("name", name).commit();
-                registerDevice();
+                deviceName = name;
+                registerDevice(name);
             } else {
                 Toast.makeText(LoginActivity.this, "登录失败", Toast.LENGTH_SHORT).show();
             }
@@ -108,10 +110,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
      * 如果动态注册之后，应用卸载了，没有保存ds的话，重新安装执行动态注册是会失败的。
      * 注意：动态注册成功，设备上线之后，不能再次执行动态注册，云端会返回已主动注册。
      */
-    private void registerDevice() {
+    private void registerDevice(String name) {
         if (!TextUtils.isEmpty(ProductKey) && !TextUtils.isEmpty(ProductSecret) && TextUtils.isEmpty(deviceToken)) {
             // docs: https://help.aliyun.com/document_detail/132111.html?spm=a2c4g.11186623.6.600.4e073f827Y7a8y
-            MqttInitParams initParams = new MqttInitParams(ProductKey, ProductSecret, deviceName, deviceSecret, MqttConfigure.MQTT_SECURE_MODE_TLS);
+            MqttInitParams initParams = new MqttInitParams(ProductKey, ProductSecret, name, deviceSecret, MqttConfigure.MQTT_SECURE_MODE_TLS);
 
             initParams.registerType = "regnwl"; // 一型一密免白
 
